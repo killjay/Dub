@@ -26,7 +26,8 @@ CREATE TABLE "jobs" (
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"email" varchar(320) NOT NULL,
-	"password_hash" varchar(120) NOT NULL,
+	"password_hash" varchar(120),
+	"google_id" varchar(64),
 	"plan" varchar(32) DEFAULT 'free' NOT NULL,
 	"minutes_used_this_month" integer DEFAULT 0 NOT NULL,
 	"minutes_quota" integer DEFAULT 2 NOT NULL,
@@ -34,7 +35,8 @@ CREATE TABLE "users" (
 	"razorpay_subscription_id" varchar(64),
 	"whatsapp_number" varchar(20),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "users_email_unique" UNIQUE("email")
+	CONSTRAINT "users_email_unique" UNIQUE("email"),
+	CONSTRAINT "users_google_id_unique" UNIQUE("google_id")
 );
 --> statement-breakpoint
 CREATE TABLE "waitlist" (

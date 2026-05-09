@@ -1,5 +1,5 @@
 {
-  "id": "54852589-5183-47fc-8722-bb167c9e76ca",
+  "id": "3812b5ad-b57b-46f9-8eb4-a9dbadff57f0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -232,7 +232,13 @@
           "name": "password_hash",
           "type": "varchar(120)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "google_id": {
+          "name": "google_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
         },
         "plan": {
           "name": "plan",
@@ -290,6 +296,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
+          ]
+        },
+        "users_google_id_unique": {
+          "name": "users_google_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "google_id"
           ]
         }
       },
