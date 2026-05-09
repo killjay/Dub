@@ -1,0 +1,49 @@
+# Local + IDE
+.DS_Store
+.vscode/
+.idea/
+.cursor/
+.claude/
+
+# Env files (NEVER commit these)
+.env
+.env.local
+.env.*.local
+worker/.env
+web/.env.local
+
+# Local-dev fallbacks + temp
+.waitlist.local.json
+/uploads
+/tmp
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+**/node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build outputs
+.next/
+**/.next/
+/out/
+/build/
+**/dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
