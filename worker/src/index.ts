@@ -65,10 +65,17 @@ const worker = new Worker<DubJobInput>(
       return { ok: true };
     } catch (err) {
       const msg = err instanceof Error ? err.message : "unknown";
+      const stack = err instanceof Error ? err.stack ?? "" : "";
       console.error(`[worker] job ${data.jobId} failed:`, msg);
+      console.error(stack);
       await db
         .update(schema.jobs)
-        .set({ status: "failed", errorMessage: msg, completedAt: new Date() })
+        .set({
+          status: "failed",
+          // Include the first stack frame so the DB has enough to debug
+          errorMessage: `${msg}\n${stack.split("\n").slice(0, 5).join("\n")}`,
+          completedAt: new Date(),
+        })
         .where(eq(schema.jobs.id, data.jobId));
       throw err;
     }

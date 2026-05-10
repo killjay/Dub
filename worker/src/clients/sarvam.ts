@@ -15,8 +15,14 @@ function key(): string {
 
 export async function sarvamAsr(wavPath: string, lang: SourceLang): Promise<AsrResult> {
   const wav = await fs.readFile(wavPath);
+  // Copy into a freshly-allocated, owned ArrayBuffer. fs.readFile returns a Node
+  // Buffer that may share/pool its underlying memory; undici's multipart streaming
+  // can detach it mid-upload, throwing
+  // "Invalid state: chunk ArrayBuffer is zero-length or detached".
+  const wavBytes = new Uint8Array(wav.byteLength);
+  wavBytes.set(wav);
   const form = new FormData();
-  form.append("file", new Blob([wav], { type: "audio/wav" }), "audio.wav");
+  form.append("file", new Blob([wavBytes], { type: "audio/wav" }), "audio.wav");
   form.append("language_code", SARVAM_LANG[lang]);
   form.append("model", "saarika:v2.5");
   form.append("with_timestamps", "true");

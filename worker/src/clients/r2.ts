@@ -74,7 +74,16 @@ export async function downloadFromR2(key: string, localPath: string) {
 
 export async function uploadToR2(localPath: string, key: string, contentType: string) {
   const url = presignPut(key, 900);
-  const body = await fs.readFile(localPath);
-  const r = await fetch(url, { method: "PUT", body, headers: { "content-type": contentType } });
+  const buf = await fs.readFile(localPath);
+  // Copy into an owned Buffer to avoid undici detaching the underlying
+  // Node Buffer (which can be pooled/shared via fs.readFile). Without this,
+  // large body PUTs throw "chunk ArrayBuffer is zero-length or detached".
+  const body = Buffer.alloc(buf.byteLength);
+  buf.copy(body);
+  const r = await fetch(url, {
+    method: "PUT",
+    body,
+    headers: { "content-type": contentType, "content-length": String(body.byteLength) },
+  });
   if (!r.ok) throw new Error(`r2 PUT ${key}: ${r.status} ${await r.text()}`);
 }
