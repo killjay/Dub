@@ -49,19 +49,30 @@ export function UploadForm() {
     if (file.size > 500 * 1024 * 1024) return setError("File is over 500 MB. Compress and retry.");
     if (targets.length === 0) return setError("Pick at least one target language.");
 
+    // Snapshot the file BEFORE any async gap. The File from <input> is backed by
+    // the input element's FileList; if React re-renders (setSubmitting → re-render
+    // of the input row) between the presign request and the R2 PUT, the underlying
+    // ArrayBuffer can detach and `fetch(... body: file)` fails with
+    // "Invalid state: chunk ArrayBuffer is zero-length or detached".
+    // file.slice() returns a fresh Blob view backed by the same bytes that won't detach.
+    const fileName = file.name;
+    const fileType = file.type;
+    const fileSize = file.size;
+    const blob = file.slice(0, file.size, file.type);
+
     setSubmitting(true);
     try {
       // Step 1: ask the API for a presigned R2 upload URL.
       const presign = await fetch("/api/jobs/presign", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ filename: file.name, contentType: file.type, sizeBytes: file.size }),
+        body: JSON.stringify({ filename: fileName, contentType: fileType, sizeBytes: fileSize }),
       });
       if (!presign.ok) throw new Error("Could not start the upload.");
       const { uploadUrl, key } = await presign.json();
 
-      // Step 2: PUT the file directly to R2.
-      const put = await fetch(uploadUrl, { method: "PUT", body: file, headers: { "content-type": file.type } });
+      // Step 2: PUT the file directly to R2 — using the snapshotted Blob.
+      const put = await fetch(uploadUrl, { method: "PUT", body: blob, headers: { "content-type": fileType } });
       if (!put.ok) throw new Error("Upload to storage failed.");
 
       // Step 3: enqueue the job.
