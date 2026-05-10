@@ -1,5 +1,4 @@
 import fs from "node:fs/promises";
-import fetch from "node-fetch";
 import type { AsrResult, SourceLang, TargetLang } from "../pipeline/types.js";
 
 const BASE = process.env.SARVAM_API_BASE ?? "https://api.sarvam.ai";

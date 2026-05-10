@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
-import fetch from "node-fetch";
 import { presignGet, uploadToR2 } from "./r2.js";
 
 const TOKEN = () => {
