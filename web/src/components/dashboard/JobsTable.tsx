@@ -23,6 +23,10 @@ const STATUS_COLOR: Record<string, string> = {
 
 export function JobsTable({ initialJobs }: { initialJobs: Job[] }) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  // Render-locale-sensitive content only after hydration to avoid
+  // server (UTC) vs client (IST) text mismatches → React error #418.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
     if (!jobs.some((j) => j.status === "queued" || j.status === "processing")) return;
@@ -70,8 +74,8 @@ export function JobsTable({ initialJobs }: { initialJobs: Job[] }) {
         <tbody>
           {jobs.map((j) => (
             <tr key={j.id} className="border-t border-border">
-              <td className="px-4 py-3 text-muted-foreground">
-                {new Date(j.createdAt).toLocaleString("en-IN")}
+              <td className="px-4 py-3 text-muted-foreground" suppressHydrationWarning>
+                {hydrated ? new Date(j.createdAt).toLocaleString("en-IN") : ""}
               </td>
               <td className="px-4 py-3">
                 {j.sourceLanguage.toUpperCase()} → {j.targetLanguages.map((t) => t.toUpperCase()).join(", ")}
